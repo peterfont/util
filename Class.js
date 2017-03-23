@@ -13,7 +13,7 @@
     }
 })(this,"Class",function(){
     //工具方法:type
-    var type = function(arg){//获取元素属性
+    var type = function(arg){//获取元素类型
         return /\s(\w+)/.exec(Object.prototype.toString.call(arg).toLowerCase())[1];
     };
     //工具方法:copy
