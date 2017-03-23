@@ -1,3 +1,8 @@
+/**
+ * A Simple Way To Create Class With Extends And Implementation In Javascript (OOP)
+ * The MIT License - Copyright (c) 2017 prp <peterfont@163.com>
+ * https://github.com/peterfont/util.git
+ */
 ;!(function(root,name,factory){//UMD
     if(typeof define == "function" && define.amd) {
         define(name, factory);
