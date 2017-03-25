@@ -100,3 +100,20 @@ console.log(p.constructor == Person);
 
 
 ```
+
+## type
+
+- 判断类型
+
+``` 
+    type.isNaN(obj);//NaN
+    type.isNull(obj);//null
+    type.isUndefined(obj);//undefined
+    type.isFunction(obj);//function
+    type.isArray(obj);//array
+    type.isArrayLike(obj);//array like
+    type.isWindow(obj);//window
+    type.isPlainObject(obj);//plainObject    
+        
+    
+```
