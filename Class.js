@@ -47,7 +47,7 @@
 
          //方式1:父类的实例(中间对象),作为子类的原型,维持原型链
          // sub.__proto__ = Sub.prototype = sup;
-         // sub.__proto__ = Sup.prototype
+         // sup.__proto__ = Sup.prototype
          var prototype = new this();
          /*
             //方式2: 通过中介的方式,创建中介对象,把中介对象的实例作为子类的原型;
@@ -101,7 +101,6 @@
          return Class;
 
      };
-
      return Class;
 
 });
