@@ -1,0 +1,223 @@
+/**
+ * Created by panrp on 2017/5/22.
+ */
+/*
+  promise 链式调用
+ */
+
+function Promise(fn) {
+    var state = 'pending',
+        value = null,
+        callbacks = [];
+    /*
+      api: new Promise(fn(resolve));
+
+      then 添加监听，实现链式调用
+
+      then(fn):
+      fn: 简单的回调函数，包装成Promise
+
+      promise = {
+        onFulfilled: onFulfilled || null, //普通函数
+
+        resolve: resolve //resolve方法
+
+      }
+
+      //判断父级的promise的状态
+
+
+      handle(promise),所有的resolve都是异步触发的
+
+     // pending  push到回调列表
+     // 未指定  onFulfilled   立即执行resolve，不需要返回值
+     // 指定  onFulfilled  执行onFulfilled,获取返回值，并且resolve
+
+
+
+
+     */
+    this.then = function (onFulfilled) {
+        return new Promise(function (resolve) {
+            handle({
+                onFulfilled: onFulfilled || null,
+                resolve: resolve
+            });
+        });
+    };
+
+    function handle(callback) {
+        if (state === 'pending') {
+            callbacks.push(callback);
+            return;
+        }
+        //如果then中没有传递任何东西
+        if(!callback.onFulfilled) {
+            callback.resolve(value);
+            return;
+        }
+        var ret = callback.onFulfilled(value);
+
+        callback.resolve(ret);
+    }
+
+    function resolve(newValue) {
+        if (newValue && (typeof newValue === 'object' || typeof newValue === 'function')) {
+            var then = newValue.then;
+            if (typeof then === 'function') {
+                then.call(newValue, resolve);
+                return;
+            }
+        }
+        state = 'fulfilled';
+        value = newValue;
+        setTimeout(function () {
+            callbacks.forEach(function (callback) {
+                handle(callback);
+            });
+        }, 0);
+    }
+
+
+    fn(resolve);
+}
+
+//promise 规范
+//手动触发resolve
+/*
+  状态：
+  pending、
+  fulfilled、
+  rejected
+ */
+// var promise = new Promise(function(resolve){
+//     $.get("","",function(data){
+//         resolve(data);
+//     });
+//
+// });
+// promise.then(function(ret){
+//     console.log("1!!");
+// })
+// .then(function(ret){
+//     new Promise(function(resolve){
+//         $.get("","",function(data){
+//             resolve(data);
+//         });
+//     })
+// }).then(function(ret){
+//     console.log(2);
+// });
+
+
+function Promise(fn) {
+    var state = 'pending',
+        value = null,
+        callbacks = [];
+
+    this.then = function (onFulfilled, onRejected) {
+        return new Promise(function (resolve, reject) {
+            handle({
+                onFulfilled: onFulfilled || null,
+                onRejected: onRejected || null,
+                resolve: resolve,
+                reject: reject
+            });
+        });
+    };
+    //增加异常处理
+    function handle(callback) {
+        if (state === 'pending') {
+            callbacks.push(callback);
+            return;
+        }
+
+        var cb = state === 'fulfilled' ? callback.onFulfilled : callback.onRejected,
+            ret;
+        if (cb === null) {
+            cb = state === 'fulfilled' ? callback.resolve : callback.reject;
+            cb(value);
+            return;
+        }
+        try {
+            ret = cb(value);
+            callback.resolve(ret);
+        } catch (e) {
+            callback.reject(e);
+        }
+    }
+
+    function resolve(newValue) {
+        if (newValue && (typeof newValue === 'object' || typeof newValue === 'function')) {
+            var then = newValue.then;
+            if (typeof then === 'function') {
+                then.call(newValue, resolve, reject);
+                return;
+            }
+        }
+        state = 'fulfilled';
+        value = newValue;
+        execute();
+    }
+
+    function reject(reason) {
+        state = 'rejected';
+        value = reason;
+        execute();
+    }
+
+    function execute() {
+        setTimeout(function () {
+            callbacks.forEach(function (callback) {
+                handle(callback);
+            });
+        }, 0);
+    }
+
+    fn(resolve, reject);
+}
+
+
+
+function Promise(fn){
+
+    var callbacks =  [], state = "pending", value;
+
+    this.then = function(callback){
+
+        //pending状态下，加入到callbacks
+        if(state === "pending"){
+            callbacks.push(callback);
+            return this;
+        }
+
+        //保证执行结束后注册的回调也能执行
+        if(state === "fulfilled"){
+            callback(value);
+            return this;
+        }
+
+        //保证函数的链式调用
+        return this;
+    };
+
+    function resolve(newValue){
+        if(state === "fulfilled"){
+            return false;
+        }
+        value = newValue;
+        state = "fulfilled";
+
+        //保证同步执行的情况下：后面注册的回调也能执行
+        setTimeout(function(){
+            for(var i = 0,len = callbacks.length;i < len;i++){
+                callbacks[i](value);
+            }
+        },0);
+
+    }
+
+
+    fn(resolve);
+
+}
